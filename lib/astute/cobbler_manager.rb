@@ -34,6 +34,7 @@ module Astute
     def add_nodes(nodes)
       nodes.each do |node|
         cobbler_name = node['slave_name']
+        next if skip_node?(cobbler_name)
         begin
           Astute.logger.info("Adding #{cobbler_name} into cobbler")
           if node.fetch('ks_meta',{})['repo_metadata']
@@ -136,6 +137,16 @@ module Astute
     def calculate_splay_between_nodes(nodes)
       # For 20 nodes, 120 iops and 180 splay_factor splay will be 1.5749
       (nodes.size + 1)  / Astute.config.iops.to_f * Astute.config.splay_factor / nodes.size
+    end
+
+    def skip_node?(cobbler_name)
+      if @engine.system_exists?(cobbler_name)
+        Astute.logger.info("Skip #{cobbler_name} node already exist in cobbler")
+        @engine.netboot(cobbler_name, true)
+        true
+      else
+        false
+      end
     end
 
   end

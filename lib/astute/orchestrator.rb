@@ -65,7 +65,8 @@ module Astute
           engine_attrs,
           nodes,
           reboot=false,
-          raise_if_error=true
+          raise_if_error=true,
+          remove=false
         )
         cobbler.add_nodes(nodes)
 
@@ -202,9 +203,9 @@ module Astute
       result_msg
     end
 
-    def remove_nodes(reporter, task_id, engine_attrs, nodes, reboot=true, raise_if_error=false)
-      cobbler = CobblerManager.new(engine_attrs, reporter)
-      cobbler.remove_nodes(nodes)
+    def remove_nodes(reporter, task_id, engine_attrs, nodes, reboot=true, raise_if_error=false, remove=true)
+      cobbler = CobblerManager.new(engine_attrs, reporter) if remove
+      cobbler.remove_nodes(nodes) if remove
       ctx = Context.new(task_id, reporter)
       result = NodesRemover.new(ctx, nodes, reboot).remove
 
